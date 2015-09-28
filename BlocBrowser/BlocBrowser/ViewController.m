@@ -99,7 +99,7 @@
     }
 }
 
-- (void)reset {
+- (void)resetWebView {
     
     [self.webView removeFromSuperview];
     
