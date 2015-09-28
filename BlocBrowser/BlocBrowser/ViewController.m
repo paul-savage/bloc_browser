@@ -75,6 +75,18 @@
     
     self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.activityIndicator];
+    
+    // Dsiplay welcom message in alert box
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Welcome to the Bloc Browser", @"App name")
+                                                                   message:NSLocalizedString(@"Please surf the web responsibly!", @"Guidance")
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
+                                                       style:UIAlertActionStyleCancel
+                                                     handler:nil];
+    [alert addAction:okAction];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)viewWillLayoutSubviews {
