@@ -138,7 +138,7 @@
 
 - (void)panFired:(UIPanGestureRecognizer *)recognizer {
     
-    if (recognizer.state == UIGestureRecognizerStateRecognized) {
+    if (recognizer.state == UIGestureRecognizerStateChanged) {
         
         CGPoint translation = [recognizer translationInView:self];
         
