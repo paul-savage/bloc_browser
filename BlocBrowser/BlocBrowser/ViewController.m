@@ -22,6 +22,8 @@
 @property (nonatomic, strong) UITextField *textField;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
 @property (nonatomic, strong) AwesomeFloatingToolbar *awesomeToolbar;
+@property (nonatomic) BOOL    toolbarFrameInitialised;
+@property (nonatomic) CGRect toolbarFrame;
 
 @end
 
@@ -45,6 +47,8 @@
     self.textField.placeholder = NSLocalizedString(@"Website URL", @"Placeholder text for web browser URL field");
     self.textField.backgroundColor = [UIColor colorWithWhite:220/255.0f alpha:1];
     self.textField.delegate = self;
+    
+    self.toolbarFrameInitialised = NO;
  
     self.awesomeToolbar = [[AwesomeFloatingToolbar alloc] initWithFourTitles:@[kWebBrowserBackString, kWebBrowserForwardString, kWebBrowserStopString, kWebBrowserRefreshString]];
     self.awesomeToolbar.delegate = self;
@@ -79,7 +83,19 @@
     self.textField.frame = CGRectMake(0, 0, width, itemHeight);
     self.webView.frame = CGRectMake(0, CGRectGetMaxY(self.textField.frame), width, browserHeight);
     
-    self.awesomeToolbar.frame = CGRectMake(20, 100, 280, 60);
+    //self.awesomeToolbar.frame = CGRectMake(20, 100, 280, 60);
+    [self validateToolbarFrame];
+    self.awesomeToolbar.frame = self.toolbarFrame;
+}
+
+- (void)validateToolbarFrame {
+    
+    if (!self.toolbarFrameInitialised || !CGRectContainsRect(self.view.bounds, self.toolbarFrame)) {
+        
+        self.toolbarFrame = CGRectMake( (CGRectGetWidth(self.webView.frame) - 280) / 2, (CGRectGetHeight(self.webView.frame) - 60) / 2, 280, 60);
+        
+        self.toolbarFrameInitialised = YES;
+    }
 }
 
 - (void)resetWebView {
@@ -99,7 +115,7 @@
 #pragma mark - AwesomeFloatingToolbarDelegate
 
 - (void)floatingToolbar:(AwesomeFloatingToolbar *)toolbar didSelectButtonWithTitle:(NSString *)title {
-    
+   
     if ([title isEqual:NSLocalizedString(@"Back", @"Back command")]) {
         [self.webView goBack];
     } else if ([title isEqual:NSLocalizedString(@"Forward", @"Forward command")]) {
@@ -119,7 +135,31 @@
     
     if (CGRectContainsRect(self.view.bounds, potentialNewFrame)) {
         
+        self.toolbarFrame = potentialNewFrame;
         toolbar.frame = potentialNewFrame;
+    }
+}
+
+- (void)floatingToolbar:(AwesomeFloatingToolbar *)toolbar didTryToPinchWithScale:(CGFloat)scale {
+   
+    CGPoint startingPoint = toolbar.frame.origin;
+    
+    CGFloat incX = CGRectGetWidth(toolbar.frame) * (scale - 1);
+    CGFloat incY = CGRectGetHeight(toolbar.frame) * (scale - 1);
+    
+    CGFloat toolbarWidth = CGRectGetWidth(toolbar.frame) + incX;
+    CGFloat toolbarHeight = CGRectGetHeight(toolbar.frame) + incY;
+    
+    if (toolbarWidth > 100) {
+        
+        CGPoint newPoint = CGPointMake(startingPoint.x - incX / 2, startingPoint.y - incY / 2);
+        CGRect potentialNewFrame = CGRectMake(newPoint.x, newPoint.y, toolbarWidth, toolbarHeight);
+    
+        if (CGRectContainsRect(self.view.bounds, potentialNewFrame)) {
+        
+            self.toolbarFrame = potentialNewFrame;
+            toolbar.frame = potentialNewFrame;
+        }
     }
 }
 
